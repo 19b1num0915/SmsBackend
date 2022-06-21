@@ -4,20 +4,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.pgclient.PgPool;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
-import io.vertx.mutiny.sqlclient.Tuple;
+
 import org.acme.Model.Users;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
-
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
+
 
 @Path("/hello")
 public class ExampleResource {
@@ -38,12 +32,18 @@ public class ExampleResource {
         return Users.findAll(client);
     }
 
-//    @Path("/get/{id}")
-//    @GET
-//    public Uni<Response> getID(Long id){
-//        return Users.findById(client, id)
-//                .onItem().transform(users -> users != null ? Response.ok(users) )
-//    }
+
+    @GET
+    @Path("{id}")
+    public Uni<Response> getID(Long id) {
+
+        logger.infov("id={0}", id);
+
+        return Users.findById(client, id)
+                .onItem().transform(user -> user != null ? Response.ok(user) : Response.status(RestResponse.Status.NOT_FOUND))
+                .onItem().transform(Response.ResponseBuilder::build);
+    }
+
 
     @Path("/add")
     @POST
