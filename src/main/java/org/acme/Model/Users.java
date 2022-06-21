@@ -8,6 +8,7 @@ import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 @ApplicationScoped
@@ -121,15 +122,14 @@ public class Users {
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem().transform(Users::from);
     }
-
-
-    public static Uni<Users> findById(PgPool client, Long id) {
-        return client.preparedQuery("SELECT * from Users where id="+ id).execute(Tuple.of(id))
+    
+    public static Uni<Users> findById(PgPool client,Long id) {
+        return client.query("SELECT * from Users where id="+ id).execute()
                 .onItem().transform(RowSet::iterator)
                 .onItem().transform(iterator -> iterator.hasNext() ? from((Row) iterator.next()) : null);
     }
-//
-//
+
+
 
 }
 
